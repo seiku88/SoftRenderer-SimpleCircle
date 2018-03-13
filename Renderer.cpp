@@ -1,5 +1,6 @@
 
 #include "stdafx.h"
+#include "Vector.h"
 #include "SoftRenderer.h"
 #include "GDIHelper.h"
 #include "Renderer.h"
@@ -34,15 +35,15 @@ void UpdateFrame(void)
 
 	//Shapes
 	SetColor(255, 255, 255);
-	int x = 100, y = -20; //Pivot
-	int size = 100; //Radius
+	Vector2 v(g_nMousePositionX - (g_nClientWidth / 2), -(g_nMousePositionY - (g_nClientHeight / 2))); //Pivot
+	float size = 10+ (g_nMouseWheel/10); //Radius
 
 	//x^2 + y^2 = r^2
-	for (int w = x-size; w < x+size; w++)
+	for (int w = v.x-size; w < v.x+size; w++)
 	{
-		for (int h = y-size; h < y+size; h++)
+		for (int h = v.y-size; h < v.y+size; h++)
 		{
-			if (((w-x)*(w-x)) + ((h-y)*(h-y)) < size*size)
+			if (((w-v.x)*(w-v.x)) + ((h-v.y)*(h-v.y)) < size*size)
 			{
 				PutPixel(w, h);
 			}
@@ -50,7 +51,7 @@ void UpdateFrame(void)
 	}
 	
 	SetColor(255, 0, 0);
-	PutPixel(x, y); //Circle's Pivot
+	PutPixel(v.x, v.y); //Circle's Pivot
 
 	/* //Using Sine and Cosine
 	for (int i = 0; i < 360; i++)

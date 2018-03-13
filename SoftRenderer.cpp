@@ -8,6 +8,9 @@
 
 int g_nClientWidth = 640;
 int g_nClientHeight = 480;
+int g_nMousePositionX = 0;
+int g_nMousePositionY = 0;
+int g_nMouseWheel;
 bool g_bIsActive;
 
 #define MAX_LOADSTRING 100
@@ -142,6 +145,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_CREATE:
 		{
 			InitGDI(hWnd);
+		}
+		break;
+	case WM_LBUTTONDOWN:
+		{
+			g_nMousePositionX = LOWORD(lParam);
+			g_nMousePositionY = HIWORD(lParam);
+		}
+		break;
+	case WM_MOUSEWHEEL:
+		{
+			g_nMouseWheel += GET_WHEEL_DELTA_WPARAM(wParam);
+
+			if (g_nMouseWheel < 1) g_nMouseWheel = 1;
 		}
 		break;
     case WM_PAINT:
