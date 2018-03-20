@@ -35,17 +35,30 @@ void UpdateFrame(void)
 
 	//Shapes
 	SetColor(255, 255, 255);
+
 	Vector2 v(g_nMousePositionX - (g_nClientWidth / 2), -(g_nMousePositionY - (g_nClientHeight / 2))); //Pivot
-	float size = 10+ (g_nMouseWheel/10); //Radius
+	Matrix2 scale;
+	scale.SetScale(1.0f, 2.5f);
+	scale.SetShear(0.0f, 0.0f);
+
+	static float angle = 0.0f;
+	Matrix2 rot;
+	rot.SetRotation(angle);
+	angle += 0.5f;
+
+	float size = 10 + (g_nMouseWheel/10); //Radius
 
 	//x^2 + y^2 = r^2
 	for (int w = v.x-size; w < v.x+size; w++)
 	{
 		for (int h = v.y-size; h < v.y+size; h++)
 		{
-			if (((w-v.x)*(w-v.x)) + ((h-v.y)*(h-v.y)) < size*size)
+			Vector2 curPos(w, h);
+			if (Vector2::DistNonSquared(v, curPos) < size * size)//if (((w-v.x)*(w-v.x)) + ((h-v.y)*(h-v.y)) < size*size)
 			{
-				PutPixel(w, h);
+				Vector2 newPos(curPos*scale);
+				newPos = newPos*rot;
+				PutPixel(newPos.x, newPos.y);
 			}
 		}
 	}
