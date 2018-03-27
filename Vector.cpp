@@ -13,11 +13,38 @@ float Vector2::Dist(const Vector2 &a, const Vector2 &b)
 	return sqrtf(DistNonSquared(a, b));
 }
 
-Vector2 Vector2::operator *(const Vector2 other) const
+float Vector2::Dot(const Vector2 &v)
 {
-	Vector2 result;
-	result.x = x*other.x;
-	result.y = y*other.y;
+	return v.x*v.x + v.y*v.y;
+}
+
+Vector2 Vector2::normalize(const Vector2 &v)// 1f / sqrtf(x*x+y*y)
+{
+	Vector2 newval(v.x / sqrtf(v.x*v.x + v.y*v.y), v.y / sqrtf(v.x*v.x + v.y*v.y));
+	return newval;
+}
+
+Vector2 Vector2::operator +(const Vector2 &a, const Vector2 &b)
+{
+	Vector2 newval(a.x + b.x, a.y + b.y);
+	return newval;
+}
+
+Vector2 Vector2::operator -(const Vector2 &a, const Vector2 &b)
+{
+	Vector2 newval(a.x - b.x, a.y - b.y);
+	return newval;
+}
+
+Vector2 Vector2::operator /(const Vector2 &a, const Vector2 &b)
+{
+	Vector2 newval(a.x / b.x, a.y / b.y);
+	return newval;
+}
+
+Vector2 Vector2::operator *(const Vector2 &a, const Vector2 &b)
+{
+	Vector2 result(a.x*b.x, a.y*b.y);
 	return result;
 }
 
