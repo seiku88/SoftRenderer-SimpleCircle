@@ -6,10 +6,13 @@
 #include "GDIHelper.h"
 #include "Renderer.h"
 
-int g_nClientWidth = 640;
-int g_nClientHeight = 480;
+int g_nClientWidth = 960;
+int g_nClientHeight = 540;
+
 int g_nMousePositionX = 0;
 int g_nMousePositionY = 0;
+int g_nMouseSubPositionX = 0;
+int g_nMouseSubPositionY = 0;
 int g_nMouseWheel;
 bool g_bIsActive;
 
@@ -152,6 +155,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			g_nMousePositionX = LOWORD(lParam);
 			g_nMousePositionY = HIWORD(lParam);
 		}
+		break;
+	case WM_RBUTTONDOWN:
+	{
+		g_nMouseSubPositionX = LOWORD(lParam);
+		g_nMouseSubPositionY = HIWORD(lParam);
+	}
 		break;
 	case WM_MOUSEWHEEL:
 		{

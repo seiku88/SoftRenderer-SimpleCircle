@@ -51,6 +51,9 @@
     <ClInclude Include="SoftRenderer.h">
       <Filter>App</Filter>
     </ClInclude>
+    <ClInclude Include="Triangle.h">
+      <Filter>Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -70,6 +73,9 @@
     </ClCompile>
     <ClCompile Include="SoftRenderer.cpp">
       <Filter>App</Filter>
+    </ClCompile>
+    <ClCompile Include="Triangle.cpp">
+      <Filter>Math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
