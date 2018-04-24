@@ -1,12 +1,9 @@
 
 #include "stdafx.h"
-#include "Triangle.h"
+#include "Mesh.h"
 #include "SoftRenderer.h"
 #include "GDIHelper.h"
 #include "Renderer.h"
-
-bool IsInRange(int x, int y);
-void PutPixel(int x, int y);
 
 bool IsInRange(int x, int y)
 {
@@ -61,14 +58,17 @@ void DrawLine(Vector3 a, Vector3 b)
 void DrawTriangle(Triangle& tri)
 {
 	tri.CalculateMinMaxPos();
+	float outS, outT;
 	for (int y = RoundToInt(tri.minPos.y); y < RoundToInt(tri.maxPos.y); y++)
 	{
 		for (int x = RoundToInt(tri.minPos.x); x < RoundToInt(tri.maxPos.x); x++)
 		{
-			if (tri.IsInArea(IntPoint(x, y)))
+			Vector3 target((float)x, (float)y, 0.0f);
+			tri.CalcBaryCentricCoord(target, &outS, &outT);
+			if (tri.IsInArea(IntPoint(x, y), outS, outT))
 			{
-				//ULONG col = tri.GetPointColour(IntPoint(x, y));
-				//SetColor(GetRValue(col), GetGValue(col), GetBValue(col));
+				if (g_Texture->IsLoaded()) g_CurrentColor = g_Texture->GetTexturePixel(outS, outT, tri);
+				else g_CurrentColor = tri.GetPixelColour(target, outS, outT);
 				PutPixel(IntPoint(x, y));
 			}
 		}
@@ -112,6 +112,7 @@ void UpdateFrame(void)
 	if (GetAsyncKeyState(VK_RIGHT)) pos.x += 1.0f;
 	if (GetAsyncKeyState(VK_UP)) pos.y += 1.0f;
 	if (GetAsyncKeyState(VK_DOWN)) pos.y -= 1.0f;
+	angle += 1.0f;
 
 	//Shapes
 	SetColor(255, 255, 255);
@@ -121,30 +122,59 @@ void UpdateFrame(void)
 	startvec.SetType(g_nMousePositionX - (g_nClientWidth / 2), -(g_nMousePositionY - (g_nClientHeight / 2)), true);
 	endvec.SetType(g_nMouseSubPositionX - (g_nClientWidth / 2), -(g_nMouseSubPositionY - (g_nClientHeight / 2)), true);
 
+	Mesh* rectmesh = new Mesh();
+	Vertex verts[4];
+	verts[0].position = Vector3(-100, 100, 0);
+	verts[0].uv = Vector2(0, 0);
+	verts[1].position = Vector3(100, 100, 0);
+	verts[1].uv = Vector2(1, 0);
+	verts[2].position = Vector3(-100, -100, 0);
+	verts[2].uv = Vector2(0, 1);
+	verts[3].position = Vector3(100, -100, 0);
+	verts[3].uv = Vector2(1, 1);
+
+	unsigned int indexes[6];
+	indexes[0] = 0;
+	indexes[1] = 1;
+	indexes[2] = 2;
+	indexes[3] = 1;
+	indexes[4] = 2;
+	indexes[5] = 3;
+
+	rectmesh->SetVertices(verts, 4);
+	rectmesh->SetIndexes(indexes, 6);
+
 	Triangle tri;
 	tri.vertices[0].position = pivot;
 	tri.vertices[1].position = startvec;
 	tri.vertices[2].position = endvec;
 
-	tri.vertices[0].colour = RGB(255, 0, 0);
-	tri.vertices[1].colour = RGB(0, 255, 0);
-	tri.vertices[2].colour = RGB(0, 0, 255);
-
 	Matrix3 translation, scale, rot;
 	translation.SetTranslation(pos.x, pos.y);
 	scale.SetScale(1, 1);
-	rot.SetRotation(g_nMouseWheel / 10);
+	rot.SetRotation(g_nMouseWheel / 10 + angle);
 
 	Matrix3 matcmb = translation * rot * scale;
 
 	tri = tri*matcmb;
+	rectmesh->MultiplyMatrix(matcmb);
 
-	DrawTriangle(tri);
+	tri.vertices[0].colour = RGB(219, 94, 77);
+	tri.vertices[0].uv = Vector2(0, 0);
+	tri.vertices[1].colour = RGB(140, 213, 94);
+	tri.vertices[1].uv = Vector2(1, 0);
+	tri.vertices[2].colour = RGB(74, 104, 198);
+	tri.vertices[2].uv = Vector2(1, 1);
+
+	//DrawTriangle(tri);
+	rectmesh->Draw();
 
 	SetColor(255, 0, 0);
 	DrawLine(startvec, endvec);
 	DrawCrosshair(startvec.ToVector2()); //Mouse Click Position
 	DrawCrosshair(endvec.ToVector2()); //Right Mouse Click Position
+
+	//delete rectmesh;
 
 	// Buffer Swap 
 	BufferSwap();

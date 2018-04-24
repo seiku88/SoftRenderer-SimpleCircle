@@ -25,6 +25,12 @@
     <Filter Include="App">
       <UniqueIdentifier>{0d6601b9-2612-4bec-a657-0fa5a68b8b21}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Image">
+      <UniqueIdentifier>{c07f7d8d-103d-40d5-a82c-9bca1ed7529b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Geometry">
+      <UniqueIdentifier>{85377f99-1390-41f9-b7ef-63576f60aceb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -54,6 +60,15 @@
     <ClInclude Include="Triangle.h">
       <Filter>Math</Filter>
     </ClInclude>
+    <ClInclude Include="Bitmap.h">
+      <Filter>Image</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Image</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -77,6 +92,15 @@
     <ClCompile Include="Triangle.cpp">
       <Filter>Math</Filter>
     </ClCompile>
+    <ClCompile Include="Bitmap.cpp">
+      <Filter>Image</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Image</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SoftRenderer.rc">
@@ -88,6 +112,9 @@
       <Filter>리소스 파일</Filter>
     </Image>
     <Image Include="SoftRenderer.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="test.bmp">
       <Filter>리소스 파일</Filter>
     </Image>
   </ItemGroup>

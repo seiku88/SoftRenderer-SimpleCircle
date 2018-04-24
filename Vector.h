@@ -32,6 +32,7 @@ public:
 
 	Vector2 operator +(const Vector2 other) const;
 	Vector2 operator -(const Vector2 other) const;
+	Vector2 operator *(const float other) const;
 	Vector2 operator *(const Vector2 other) const;
 	Vector2 operator *(const Matrix2 other) const;
 	Vector2 operator /(const Vector2 other) const;

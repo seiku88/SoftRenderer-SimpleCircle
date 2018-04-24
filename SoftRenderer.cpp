@@ -5,10 +5,12 @@
 #include "SoftRenderer.h"
 #include "GDIHelper.h"
 #include "Renderer.h"
+#include "Texture.h"
 
 int g_nClientWidth = 960;
 int g_nClientHeight = 540;
 
+Texture* g_Texture;
 int g_nMousePositionX = 0;
 int g_nMousePositionY = 0;
 int g_nMouseSubPositionX = 0;
@@ -42,6 +44,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     UNREFERENCED_PARAMETER(lpCmdLine);
 
     // TODO: 여기에 코드를 입력합니다.
+	g_Texture = new Texture();
 
     // 전역 문자열을 초기화합니다.
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
@@ -134,6 +137,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             // 메뉴 선택을 구문 분석합니다.
             switch (wmId)
             {
+			case IDM_LOADTEX:
+				g_Texture->LoadBMP("test.bmp");
+				break;
             case IDM_ABOUT:
                 DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
                 break;
