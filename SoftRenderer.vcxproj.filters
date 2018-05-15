@@ -67,7 +67,10 @@
       <Filter>Image</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Vertex.h">
+      <Filter>Geometry</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -99,7 +102,10 @@
       <Filter>Image</Filter>
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Vertex.cpp">
+      <Filter>Geometry</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -115,6 +121,9 @@
       <Filter>리소스 파일</Filter>
     </Image>
     <Image Include="test.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="pngtest.png">
       <Filter>리소스 파일</Filter>
     </Image>
   </ItemGroup>

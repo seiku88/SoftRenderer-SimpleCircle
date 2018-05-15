@@ -71,6 +71,11 @@ public:
 		isPoint ? z = 1 : 0;
 	}
 
+	//Constants
+	static Vector3 Zero() { return Vector3(0, 0, 0); }
+	static Vector3 One() { return Vector3(1, 1, 1); }
+
+	//Math
 	static float DistNonSquared(const Vector3 &a, const Vector3 &b);
 	static float Dist(const Vector3 &a, const Vector3 &b);
 	static float Dot(const Vector3 &a, const Vector3 &b);
@@ -79,6 +84,7 @@ public:
 
 	Vector3 operator +(const Vector3 other) const;
 	Vector3 operator -(const Vector3 other) const;
+	Vector3 operator *(const float other) const;
 	Vector3 operator *(const Vector3 other) const;
 	Vector3 operator *(const Matrix3 other) const;
 	Vector3 operator /(const Vector3 other) const;

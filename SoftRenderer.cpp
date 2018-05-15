@@ -139,6 +139,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             {
 			case IDM_LOADTEX:
 				g_Texture->LoadBMP("test.bmp");
+				g_Texture->SetTransparent(RGB32(255, 0, 255));
 				break;
             case IDM_ABOUT:
                 DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
