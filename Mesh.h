@@ -38,11 +38,11 @@ public:
 
 	void SetVertices(Vertex* verts, size_t size);
 	void SetIndexes(int* idxs, size_t size);
-	void SetMatrix(Matrix3 t, Matrix3 s, Matrix3 r)
+	void SetMatrix(Vector2 t, Vector2 s, float r)
 	{
-		translation = t;
-		scale = s;
-		rot = r;
+		translation.SetTranslation(t.x, t.y);
+		scale.SetScale(s.x, s.y);
+		rot.SetRotation(r);
 	}
 };
 

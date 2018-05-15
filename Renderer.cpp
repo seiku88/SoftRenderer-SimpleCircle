@@ -158,17 +158,11 @@ void UpdateFrame(void)
 	static float angle = 0.0f;
 	static float dist = 0.0f;
 
-	//if (GetAsyncKeyState(VK_LEFT)) dist -= 10.0f;
-	//if (GetAsyncKeyState(VK_RIGHT)) dist += 10.0f;
+	if (GetAsyncKeyState(VK_LEFT)) dist -= 10.0f;
+	if (GetAsyncKeyState(VK_RIGHT)) dist += 10.0f;
 	//if (GetAsyncKeyState(VK_UP)) pos.y += 1.0f;
 	//if (GetAsyncKeyState(VK_DOWN)) pos.y -= 1.0f;
 	//angle += 0.1f;
-
-	//Shapes
-	SetColor(255, 255, 255);
-
-	//Matrix
-	Matrix3 translation, scale, rot;
 
 	Vector3 pivot(0, 0, 1); //Pivot
 	Vector3 startvec, endvec;
@@ -189,14 +183,10 @@ void UpdateFrame(void)
 	vertssky[1].uv = Vector2(1, 0.5f);
 	vertssky[2].uv = Vector2(0, 1);
 	vertssky[3].uv = Vector2(1, 1);
-	translation.SetTranslation(dist/2, pos.y);
-	scale.SetScale(1.9f, 1);
-	rot.SetRotation(0);
-	skymesh->SetMatrix(translation, scale, rot);
+	skymesh->SetMatrix(Vector2(dist / 2, pos.y), Vector2(1.9f, 1), 0);
 	skymesh->SetVertices(vertssky, 4);
 	skymesh->SetIndexes(indexes, 6);
 	skymesh->layer = 4;
-	meshes.push_back(skymesh);
 
 	Mesh* groundmesh = new Mesh();
 	Vertex vertsground[4];
@@ -208,13 +198,10 @@ void UpdateFrame(void)
 	vertsground[1].uv = Vector2(1, 0);
 	vertsground[2].uv = Vector2(0.5f, 0.5f);
 	vertsground[3].uv = Vector2(1, 0.5f);
-	translation.SetTranslation(dist / 1.5f, pos.y);
-	scale.SetScale(2, 1);
-	groundmesh->SetMatrix(translation, scale, rot);
+	groundmesh->SetMatrix(Vector2(dist / 1.5f, pos.y), Vector2(2, 1), 0);
 	groundmesh->SetVertices(vertsground, 4);
 	groundmesh->SetIndexes(indexes, 6);
 	groundmesh->layer = 2;
-	meshes.push_back(groundmesh);
 
 	Mesh* charamesh = new Mesh();
 	Vertex vertschar[4];
@@ -226,22 +213,23 @@ void UpdateFrame(void)
 	vertschar[1].uv = Vector2(0.5f, 0);
 	vertschar[2].uv = Vector2(0, 0.5f);
 	vertschar[3].uv = Vector2(0.5f, 0.5f);
-	translation.SetTranslation(dist, pos.y);
-	scale.SetScale(1, 1);
-	rot.SetRotation(g_nMouseWheel / 10 + angle);
-	charamesh->SetMatrix(translation, scale, rot);
+	charamesh->SetMatrix(Vector2(dist, pos.y), Vector2(1, 1), g_nMouseWheel / 10 + angle);
 	charamesh->SetVertices(vertschar, 4);
 	charamesh->SetIndexes(indexes, 6);
 	charamesh->layer = 0;
+
+	//Push all meshes
+	meshes.push_back(groundmesh);
 	meshes.push_back(charamesh);
+	meshes.push_back(skymesh);
 
 	//Sort meshes by layer
 	std::sort(meshes.begin(), meshes.end(), SortMeshByLayer);
 
 	//Draw all meshes
-	for (int i = 0; i < meshes.size(); i++)//Use iterator? (std::vector<Mesh*>::iterator it = meshes.begin(); it != meshes.end(); ++it)
+	for (std::vector<Mesh*>::iterator it = meshes.begin(); it != meshes.end(); ++it)//(int i = 0; i < meshes.size(); i++)
 	{
-		DrawCall(meshes[i]);
+		DrawCall(*it);
 	}
 	meshes.clear();
 
