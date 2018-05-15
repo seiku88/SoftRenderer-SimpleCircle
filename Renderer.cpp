@@ -141,6 +141,8 @@ void DrawCrosshair(const Vector2 position)
 	PutPixel(IntPoint(position.x, position.y));
 }
 
+bool SortMeshByLayer(const Mesh* lhs, const Mesh* rhs) { return lhs->layer > rhs->layer; } //Smaller number first
+
 void InitFrame(void)
 {
 }
@@ -151,10 +153,6 @@ void UpdateFrame(void)
 	SetColor(32, 32, 32);
 	Clear();
 
-	// Draw
-	SetColor(255, 0, 0);
-	PutPixel(IntPoint());
-
 	//Inputs
 	static Vector3 pos;
 	static float angle = 0.0f;
@@ -164,7 +162,7 @@ void UpdateFrame(void)
 	//if (GetAsyncKeyState(VK_RIGHT)) dist += 10.0f;
 	//if (GetAsyncKeyState(VK_UP)) pos.y += 1.0f;
 	//if (GetAsyncKeyState(VK_DOWN)) pos.y -= 1.0f;
-	angle += 0.1f;
+	//angle += 0.1f;
 
 	//Shapes
 	SetColor(255, 255, 255);
@@ -193,7 +191,7 @@ void UpdateFrame(void)
 	vertssky[3].uv = Vector2(1, 1);
 	translation.SetTranslation(dist/2, pos.y);
 	scale.SetScale(1.9f, 1);
-	rot.SetRotation(g_nMouseWheel / 10 + angle);
+	rot.SetRotation(0);
 	skymesh->SetMatrix(translation, scale, rot);
 	skymesh->SetVertices(vertssky, 4);
 	skymesh->SetIndexes(indexes, 6);
@@ -220,16 +218,17 @@ void UpdateFrame(void)
 
 	Mesh* charamesh = new Mesh();
 	Vertex vertschar[4];
-	vertschar[0].position = Vector3(-100, 100, 0);
-	vertschar[1].position = Vector3(100, 100, 0);
-	vertschar[2].position = Vector3(-100, -100, 0);
-	vertschar[3].position = Vector3(100, -100, 0);
+	vertschar[0].position = Vector3(-100 + startvec.x, 100 + startvec.y, 0);
+	vertschar[1].position = Vector3(100 + startvec.x, 100 + startvec.y, 0);
+	vertschar[2].position = Vector3(-100 + startvec.x, -100 + startvec.y, 0);
+	vertschar[3].position = Vector3(100 + startvec.x, -100 + startvec.y, 0);
 	vertschar[0].uv = Vector2(0, 0);
 	vertschar[1].uv = Vector2(0.5f, 0);
 	vertschar[2].uv = Vector2(0, 0.5f);
 	vertschar[3].uv = Vector2(0.5f, 0.5f);
 	translation.SetTranslation(dist, pos.y);
 	scale.SetScale(1, 1);
+	rot.SetRotation(g_nMouseWheel / 10 + angle);
 	charamesh->SetMatrix(translation, scale, rot);
 	charamesh->SetVertices(vertschar, 4);
 	charamesh->SetIndexes(indexes, 6);
@@ -237,7 +236,7 @@ void UpdateFrame(void)
 	meshes.push_back(charamesh);
 
 	//Sort meshes by layer
-	std::sort(meshes.begin(), meshes.end());
+	std::sort(meshes.begin(), meshes.end(), SortMeshByLayer);
 
 	//Draw all meshes
 	for (int i = 0; i < meshes.size(); i++)//Use iterator? (std::vector<Mesh*>::iterator it = meshes.begin(); it != meshes.end(); ++it)
@@ -245,11 +244,6 @@ void UpdateFrame(void)
 		DrawCall(meshes[i]);
 	}
 	meshes.clear();
-
-	SetColor(255, 0, 0);
-	DrawLine(startvec, endvec);
-	DrawCrosshair(startvec.ToVector2()); //Mouse Click Position
-	DrawCrosshair(endvec.ToVector2()); //Right Mouse Click Position
 
 	// Buffer Swap 
 	BufferSwap();

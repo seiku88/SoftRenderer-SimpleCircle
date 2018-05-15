@@ -44,7 +44,5 @@ public:
 		scale = s;
 		rot = r;
 	}
-
-	bool operator<(const Mesh &rhs) const { return layer < rhs.layer; }
 };
 
