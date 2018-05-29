@@ -7,8 +7,8 @@
 #include "Renderer.h"
 #include "Texture.h"
 
-int g_nClientWidth = 960;
-int g_nClientHeight = 540;
+int g_nClientWidth = 480;
+int g_nClientHeight = 480;
 
 Texture* g_Texture;
 int g_nMousePositionX = 0;
@@ -155,6 +155,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_CREATE:
 		{
 			InitGDI(hWnd);
+			InitFrame();
 		}
 		break;
 	case WM_LBUTTONDOWN:

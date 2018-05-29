@@ -8,6 +8,19 @@
 #include <algorithm>
 #include <vector>
 
+//Scene Variables
+Matrix3 g_ShaderMatrix;
+
+Vector2 pos;
+float angle = 0.0f;
+Vector2 scale;
+
+std::vector<Mesh *> meshes;
+Mesh *skymesh, *groundmesh, *charamesh;
+Vertex vertssky[4], vertsground[4], vertschar[4];
+int indexes[6] = { 0,1,2,1,2,3 }; //Default indexes for rectangle mesh
+
+//Rendering Functions
 bool IsInRange(int x, int y)
 {
 	return (abs(x) < (g_nClientWidth / 2)) && (abs(y) < (g_nClientHeight / 2));
@@ -37,7 +50,7 @@ void DrawCall(Mesh* MeshToDraw)
 		vdata.vertex = vert.position;
 		vdata.colour = vert.colour;
 		vdata.texcoord = vert.uv;
-		v[i] = VertexShader(vdata, MeshToDraw->translation * MeshToDraw->rot * MeshToDraw->scale);
+		v[i] = VertexShader(vdata, g_ShaderMatrix * MeshToDraw->transform.GetCombinedMatrix());
 	}
 
 	for (int i = 0; i < MeshToDraw->indexesSize; i+=3)
@@ -79,8 +92,11 @@ void DrawCall(Mesh* MeshToDraw)
 //Shader
 v2f VertexShader(appdata_full in, Matrix3 matcmb)
 {
-	// TRS Matrix 반영해서 변환된 position 돌려주기..
-	return v2f(in.vertex*matcmb, in.texcoord, in.colour);
+	v2f result;
+	result.vertex = in.vertex*matcmb;
+	result.texcoord = in.texcoord;
+	result.colour = in.colour;
+	return result;
 }
 
 ULONG FragmentShader(v2f in, float s, float t)
@@ -115,10 +131,13 @@ void DrawEllipse(Vector2 pivot, Matrix2 mat, int size)
 void DrawLine(Vector3 a, Vector3 b)
 {
 	float dist = Vector3::Dist(a, b);
+	IntPoint tmp;
 	for (int i = 0; i < dist; i++)
 	{
 		float t = i / dist;
-		PutPixel(IntPoint(((1 - t)*a.x + t*b.x), ((1 - t)*a.y + t*b.y)));
+		tmp.x = (1 - t)*a.x + t * b.x;
+		tmp.y = (1 - t)*a.y + t * b.y;
+		if (tmp.x >= -0.5f * g_nClientWidth && tmp.x <= 0.5f * g_nClientWidth && tmp.y >= -0.5f * g_nClientHeight && tmp.y <= 0.5f * g_nClientHeight) PutPixel(tmp);
 	}
 }
 
@@ -145,6 +164,56 @@ bool SortMeshByLayer(const Mesh* lhs, const Mesh* rhs) { return lhs->layer > rhs
 
 void InitFrame(void)
 {
+	pos = Vector2(0, 0);
+	scale = Vector2(1, 1);
+
+	skymesh = new Mesh();
+	groundmesh = new Mesh();
+	charamesh = new Mesh();
+
+	vertssky[0].position = Vector3(-100, 100);
+	vertssky[1].position = Vector3(100, 100);
+	vertssky[2].position = Vector3(-100, -100);
+	vertssky[3].position = Vector3(100, -100);
+	vertssky[0].uv = Vector2(0, 0.5f);
+	vertssky[1].uv = Vector2(1, 0.5f);
+	vertssky[2].uv = Vector2(0, 1);
+	vertssky[3].uv = Vector2(1, 1);
+	skymesh->SetTransform(Vector2(pos.x / 2, pos.y), Vector2(1.9f, 1), 0);
+	skymesh->SetVertices(vertssky, 4);
+	skymesh->SetIndexes(indexes, 6);
+	skymesh->layer = 4;
+
+	vertsground[0].position = Vector3(-100, 100);
+	vertsground[1].position = Vector3(100, 100);
+	vertsground[2].position = Vector3(-100, -100);
+	vertsground[3].position = Vector3(100, -100);
+	vertsground[0].uv = Vector2(0.5f, 0);
+	vertsground[1].uv = Vector2(1, 0);
+	vertsground[2].uv = Vector2(0.5f, 0.5f);
+	vertsground[3].uv = Vector2(1, 0.5f);
+	groundmesh->SetTransform(Vector2(pos.x / 1.5f, pos.y), Vector2(2, 1), 0);
+	groundmesh->SetVertices(vertsground, 4);
+	groundmesh->SetIndexes(indexes, 6);
+	groundmesh->layer = 2;
+
+	vertschar[0].position = Vector3(-100, 100);
+	vertschar[1].position = Vector3(100, 100);
+	vertschar[2].position = Vector3(-100, -100);
+	vertschar[3].position = Vector3(100, -100);
+	vertschar[0].uv = Vector2(0, 0);
+	vertschar[1].uv = Vector2(0.5f, 0);
+	vertschar[2].uv = Vector2(0, 0.5f);
+	vertschar[3].uv = Vector2(0.5f, 0.5f);
+	charamesh->SetTransform(Vector2(pos.x, pos.y), Vector2(1, 1), g_nMouseWheel / 10 + angle);
+	charamesh->SetVertices(vertschar, 4);
+	charamesh->SetIndexes(indexes, 6);
+	charamesh->layer = 0;
+
+	//Push all meshes
+	//meshes.push_back(groundmesh);
+	meshes.push_back(charamesh);
+	//meshes.push_back(skymesh);
 }
 
 void UpdateFrame(void)
@@ -154,85 +223,69 @@ void UpdateFrame(void)
 	Clear();
 
 	//Inputs
-	static Vector3 pos;
-	static float angle = 0.0f;
-	static float dist = 0.0f;
+	static Vector2 camLocation(0.0f, 0.0f);
+	static float camRotation = 0.0f;
 
-	if (GetAsyncKeyState(VK_LEFT)) dist -= 10.0f;
-	if (GetAsyncKeyState(VK_RIGHT)) dist += 10.0f;
-	//if (GetAsyncKeyState(VK_UP)) pos.y += 1.0f;
-	//if (GetAsyncKeyState(VK_DOWN)) pos.y -= 1.0f;
-	//angle += 0.1f;
+	if (GetAsyncKeyState(VK_LSHIFT))
+	{
+		if (GetAsyncKeyState(VK_LEFT)) camLocation.x -= 1.0f;
+		if (GetAsyncKeyState(VK_RIGHT)) camLocation.x += 1.0f;
+		if (GetAsyncKeyState(VK_UP)) camLocation.y += 1.0f;
+		if (GetAsyncKeyState(VK_DOWN)) camLocation.y -= 1.0f;
+		if (GetAsyncKeyState(VK_PRIOR)) camRotation += 1.0f;
+		if (GetAsyncKeyState(VK_NEXT)) camRotation -= 1.0f;
+	}
+	else
+	{
+		if (GetAsyncKeyState(VK_LEFT)) pos.x -= 1.0f;
+		if (GetAsyncKeyState(VK_RIGHT)) pos.x += 1.0f;
+		if (GetAsyncKeyState(VK_UP)) angle += 1.0f;
+		if (GetAsyncKeyState(VK_DOWN)) angle -= 1.0f;
+		if (GetAsyncKeyState(VK_PRIOR)) scale *= 1.01f;
+		if (GetAsyncKeyState(VK_NEXT)) scale *= 0.99f;
+	}
+	angle += 0.5f;
 
 	Vector3 pivot(0, 0, 1); //Pivot
 	Vector3 startvec, endvec;
 	startvec.SetType(g_nMousePositionX - (g_nClientWidth / 2), -(g_nMousePositionY - (g_nClientHeight / 2)), true);
 	endvec.SetType(g_nMouseSubPositionX - (g_nClientWidth / 2), -(g_nMouseSubPositionY - (g_nClientHeight / 2)), true);
 
-	//Meshes
-	std::vector<Mesh*> meshes;
-	int indexes[6] = { 0,1,2,1,2,3 }; //Default indexes for rectangle mesh
-
-	Mesh* skymesh = new Mesh();
-	Vertex vertssky[4];
-	vertssky[0].position = Vector3(-100, 100, 0);
-	vertssky[1].position = Vector3(100, 100, 0);
-	vertssky[2].position = Vector3(-100, -100, 0);
-	vertssky[3].position = Vector3(100, -100, 0);
-	vertssky[0].uv = Vector2(0, 0.5f);
-	vertssky[1].uv = Vector2(1, 0.5f);
-	vertssky[2].uv = Vector2(0, 1);
-	vertssky[3].uv = Vector2(1, 1);
-	skymesh->SetMatrix(Vector2(dist / 2, pos.y), Vector2(1.9f, 1), 0);
-	skymesh->SetVertices(vertssky, 4);
-	skymesh->SetIndexes(indexes, 6);
-	skymesh->layer = 4;
-
-	Mesh* groundmesh = new Mesh();
-	Vertex vertsground[4];
-	vertsground[0].position = Vector3(-100, 100, 0);
-	vertsground[1].position = Vector3(100, 100, 0);
-	vertsground[2].position = Vector3(-100, -100, 0);
-	vertsground[3].position = Vector3(100, -100, 0);
-	vertsground[0].uv = Vector2(0.5f, 0);
-	vertsground[1].uv = Vector2(1, 0);
-	vertsground[2].uv = Vector2(0.5f, 0.5f);
-	vertsground[3].uv = Vector2(1, 0.5f);
-	groundmesh->SetMatrix(Vector2(dist / 1.5f, pos.y), Vector2(2, 1), 0);
-	groundmesh->SetVertices(vertsground, 4);
-	groundmesh->SetIndexes(indexes, 6);
-	groundmesh->layer = 2;
-
-	Mesh* charamesh = new Mesh();
-	Vertex vertschar[4];
-	vertschar[0].position = Vector3(-100 + startvec.x, 100 + startvec.y, 0);
-	vertschar[1].position = Vector3(100 + startvec.x, 100 + startvec.y, 0);
-	vertschar[2].position = Vector3(-100 + startvec.x, -100 + startvec.y, 0);
-	vertschar[3].position = Vector3(100 + startvec.x, -100 + startvec.y, 0);
-	vertschar[0].uv = Vector2(0, 0);
-	vertschar[1].uv = Vector2(0.5f, 0);
-	vertschar[2].uv = Vector2(0, 0.5f);
-	vertschar[3].uv = Vector2(0.5f, 0.5f);
-	charamesh->SetMatrix(Vector2(dist, pos.y), Vector2(1, 1), g_nMouseWheel / 10 + angle);
-	charamesh->SetVertices(vertschar, 4);
-	charamesh->SetIndexes(indexes, 6);
-	charamesh->layer = 0;
-
-	//Push all meshes
-	meshes.push_back(groundmesh);
-	meshes.push_back(charamesh);
-	meshes.push_back(skymesh);
+	//====Mesh Changes
+	//skymesh->SetTransform(Vector2(pos.x / 2, pos.y), Vector2(1.9f, 1), 0);
+	//groundmesh->SetTransform(Vector2(pos.x / 1.5f, pos.y), Vector2(2, 1), 0);
+	charamesh->SetTransform(pos, scale, g_nMouseWheel / 10 + angle);
 
 	//Sort meshes by layer
 	std::sort(meshes.begin(), meshes.end(), SortMeshByLayer);
 
+
+	//====Camera
+	Transform2D camera(camLocation, Vector2(1, 1), camRotation);
+	Matrix3 ViewMat = camera.GetViewMatrix();
+
+	g_ShaderMatrix = ViewMat;
+
+
+	//====Drawing
+	//Axis Draw
+	Vector3 XStart((float)g_nClientWidth * -0.7f + camLocation.x, 0.0f, 1.0f);
+	Vector3 XEnd((float)g_nClientWidth * 0.7f + camLocation.x, 0.0f, 1.0f);
+	SetColor(255, 0, 0);
+	DrawLine(XStart * ViewMat, XEnd * ViewMat);
+
+	Vector3 YStart(0.0f, (float)g_nClientHeight * -0.7f + camLocation.y, 1.0f);
+	Vector3 YEnd(0.0f, (float)g_nClientHeight * 0.7f + camLocation.y, 1.0f);
+	SetColor(0, 255, 0);
+	DrawLine(YStart * ViewMat, YEnd * ViewMat);
+
 	//Draw all meshes
-	for (std::vector<Mesh*>::iterator it = meshes.begin(); it != meshes.end(); ++it)//(int i = 0; i < meshes.size(); i++)
+	for (std::vector<Mesh*>::iterator it = meshes.begin(); it != meshes.end(); ++it)
 	{
 		DrawCall(*it);
 	}
-	meshes.clear();
 
-	// Buffer Swap 
+
+	//Buffer Swap 
 	BufferSwap();
 }

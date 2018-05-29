@@ -39,6 +39,7 @@ public:
 
 	Vector2& operator +=(const Vector2 other);
 	Vector2& operator -=(const Vector2 other);
+	Vector2& operator *=(const float other);
 	Vector2& operator *=(const Vector2 other);
 	Vector2& operator /=(const Vector2 other);
 
@@ -62,6 +63,7 @@ public:
 
 public:
 	Vector3() : x(0), y(0), z(0) {}
+	Vector3(float nx, float ny) : x(nx), y(ny), z(1) {}
 	Vector3(float nx, float ny, float nz) : x(nx), y(ny), z(nz) {}
 
 	void SetType(float nx, float ny, bool isPoint)

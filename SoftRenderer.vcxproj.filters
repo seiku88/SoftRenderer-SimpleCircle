@@ -72,6 +72,9 @@
     <ClInclude Include="Vertex.h">
       <Filter>Geometry</Filter>
     </ClInclude>
+    <ClInclude Include="Transform.h">
+      <Filter>Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -106,6 +109,9 @@
     </ClCompile>
     <ClCompile Include="Vertex.cpp">
       <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Transform.cpp">
+      <Filter>Math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

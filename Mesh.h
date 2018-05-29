@@ -1,7 +1,7 @@
 #pragma once
 
 #include "stdafx.h"
-#include "Vertex.h"
+#include "Transform.h"
 
 class Mesh
 {
@@ -12,7 +12,7 @@ public:
 	int* indexes;
 	size_t indexesSize;
 
-	Matrix3 translation, scale, rot;
+	Transform2D transform;
 	int layer;
 
 
@@ -24,6 +24,7 @@ public:
 		vertices = 0;
 		indexes = 0;
 
+		transform = Transform2D();
 		layer = 0;
 	}
 
@@ -38,11 +39,11 @@ public:
 
 	void SetVertices(Vertex* verts, size_t size);
 	void SetIndexes(int* idxs, size_t size);
-	void SetMatrix(Vector2 t, Vector2 s, float r)
+	void SetTransform(Vector2 t, Vector2 s, float r)
 	{
-		translation.SetTranslation(t.x, t.y);
-		scale.SetScale(s.x, s.y);
-		rot.SetRotation(r);
+		transform.position = t;
+		transform.scale = s;
+		transform.rotation = r;
 	}
 };
 
